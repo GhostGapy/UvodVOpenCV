@@ -28,6 +28,10 @@ jobs:
   testi:
     needs: preveri
     runs-on: self-hosted
+    strategy:
+      matrix:
+        python-version: [ 3.10, 3.11 ]
+
     steps:
       - name: Kloniraj repozitorij
         uses: actions/checkout@v4
@@ -49,10 +53,7 @@ jobs:
       - name: Namesti pytest
         run: pip install pytest
 
-      - name: Poženi teste na večih verzijah Pythona (matrix)
-        strategy:
-          matrix:
-            python-version: [3.10, 3.11]
+      - name: Poženi teste na verziji ${{ matrix.python-version }}
         run: |
           echo "Uporabljena Python verzija: ${{ matrix.python-version }}"
           pytest .tests/test_naloga1.py
