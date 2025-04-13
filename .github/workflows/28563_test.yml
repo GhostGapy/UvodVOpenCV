@@ -61,17 +61,34 @@ jobs:
       - name: Označi uspeh za deploy
         run: echo "ok" > status.txt
 
-      - name: Shrani status v repozitorij
+      - name: Shrani status v repozitorij (debug)
         env:
           CI_PAT: ${{ secrets.CI_PAT }}
         run: |
+          echo "[INFO] Nastavljam Git uporabnika"
           git config --global user.name "ci-bot"
           git config --global user.email "ci@example.com"
+
+          echo "[INFO] Nastavljam remote URL s CI_PAT"
           git remote set-url origin https://x-access-token:${CI_PAT}@github.com/${{ github.repository }}
+
+          echo "[INFO] Trenutni git remote URL:"
+          git remote -v
+
+          echo "[INFO] Fetch in checkout"
           git fetch
           git checkout main
+
+          echo "[INFO] Kopiram status v repozitorij"
           cp status.txt status-${{ matrix.python-version }}.txt
+
+          echo "[INFO] Dodajam datoteko v git"
           git add status-${{ matrix.python-version }}.txt
+
+          echo "[INFO] Commitam spremembo"
           git commit -m "Shranjeni status za ${{ matrix.python-version }}"
+
+          echo "[INFO] Pusham v repozitorij"
           git push
+
 
