@@ -5,32 +5,63 @@ on:
     branches: [main]
 
 jobs:
-  test:
+  preveri:
     runs-on: self-hosted
     steps:
-      - uses: actions/checkout@v3
+      - name: Kloniraj repozitorij
+        uses: actions/checkout@v4
 
-      - name: Preveri če test obstaja
-        id: preveri
+      - name: Preveri testne datoteke in shrani napako
         run: |
-          if [ -f ".tests/test_naloga1.py" ]; then
-            echo "testi=1" >> $GITHUB_ENV
+          if [ ! -f ".tests/test_naloga1.py" ]; then
+            echo "Testna datoteka ne obstaja." > napaka.txt
           else
-            echo "Testna datoteka ne obstaja" > napaka.txt
-            echo "testi=0" >> $GITHUB_ENV
+            echo "" > napaka.txt
           fi
 
-      - name: Shrani napako kot artefakt
-        if: env.testi == '0'
-        uses: actions/upload-artifact@v3
+      - name: Naloži napaka.txt kot artefakt
+        uses: actions/upload-artifact@v4
         with:
           name: napaka
           path: napaka.txt
 
+  testi:
+    needs: preveri
+    runs-on: self-hosted
+    steps:
+      - name: Kloniraj repozitorij
+        uses: actions/checkout@v4
+
+      - name: Prenesi napaka.txt artefakt
+        uses: actions/download-artifact@v4
+        with:
+          name: napaka
+          path: ./artefakt
+
+      - name: Preveri napako iz artefakta
+        run: |
+          if [ -s ./artefakt/napaka.txt ]; then
+            echo "Napaka: Testna datoteka ne obstaja!"
+            cat ./artefakt/napaka.txt
+            exit 1
+          fi
+
       - name: Namesti pytest
-        if: env.testi == '1'
         run: pip install pytest
 
-      - name: Poženi teste
-        if: env.testi == '1'
-        run: pytest .tests/test_naloga1.py
+      - name: Poženi teste na večih verzijah Pythona (matrix)
+        strategy:
+          matrix:
+            python-version: [3.10, 3.11]
+        run: |
+          echo "Uporabljena Python verzija: ${{ matrix.python-version }}"
+          pytest .tests/test_naloga1.py
+
+      - name: Označi uspeh za deploy
+        run: echo "ok" > status.txt
+
+      - name: Naloži status kot artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: status
+          path: status.txt
