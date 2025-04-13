@@ -110,8 +110,8 @@ def najdi_obraze(slika, rezultati, prag=0.8):
 
 
 def main():
-    video = 'C:/Users/Admin/OneDrive - Univerza v Mariboru/Razno/Vaje - ORV/ORV-Uvod-main/.utils/ORV.MP4'
-    kamera = cv2.VideoCapture(0)
+    video = '.utils/ORV.MP4'
+    kamera = cv2.VideoCapture(video)
 
     video_fps = kamera.get(cv2.CAP_PROP_FPS)
 
@@ -189,7 +189,7 @@ def main():
 
 
         # prikazemo window
-        cv2.imshow('Detekcija obraza na osnovi barve', okvir)
+        #cv2.imshow('Detekcija obraza na osnovi barve', okvir)
 
 
         # pocakamo na fps videa za pravilno hitrost predvajanja
@@ -216,4 +216,5 @@ def main():
 
 
 if __name__ == "__main__":
+    print("Program se zaganja...")
     main()

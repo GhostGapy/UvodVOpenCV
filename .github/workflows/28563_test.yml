@@ -1,0 +1,36 @@
+name: CI Test
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Preveri če test obstaja
+        id: preveri
+        run: |
+          if [ -f ".tests/test_naloga1.py" ]; then
+            echo "testi=1" >> $GITHUB_ENV
+          else
+            echo "Testna datoteka ne obstaja" > napaka.txt
+            echo "testi=0" >> $GITHUB_ENV
+          fi
+
+      - name: Shrani napako kot artefakt
+        if: env.testi == '0'
+        uses: actions/upload-artifact@v3
+        with:
+          name: napaka
+          path: napaka.txt
+
+      - name: Namesti pytest
+        if: env.testi == '1'
+        run: pip install pytest
+
+      - name: Poženi teste
+        if: env.testi == '1'
+        run: pytest .tests/test_naloga1.py
