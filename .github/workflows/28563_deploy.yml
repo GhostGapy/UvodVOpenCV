@@ -1,7 +1,7 @@
 name: Deploy Docker
 
 on:
-  workflow_dispatch:  # Zaženeš ročno prek GitHub Actions UI
+  workflow_dispatch:  # Ročni zagon
 
 jobs:
   deploy:
@@ -11,41 +11,24 @@ jobs:
       - name: Kloniraj repozitorij
         uses: actions/checkout@v4
 
-      # Prenesi vse status artefakte, ki so bili ustvarjeni v 28563_test.yml
-      - name: Prenesi status-3.10
-        uses: actions/download-artifact@v4
-        with:
-          name: status-3.10
-          path: ./status-3.10
-
-      - name: Prenesi status-3.11
-        uses: actions/download-artifact@v4
-        with:
-          name: status-3.11
-          path: ./status-3.11
-
-      # Preveri vsebino status.txt datotek (če so testi uspeli)
-      - name: Preveri vsebino vseh status.txt
+      - name: Preveri statuse iz repozitorija
         run: |
-          echo "Preverjam vse statuse..."
-          ok1=$(cat ./status-3.10/status.txt 2>/dev/null || echo "")
-          ok2=$(cat ./status-3.11/status.txt 2>/dev/null || echo "")
+          echo "Preverjam status-3.10.txt in status-3.11.txt ..."
+          ok1=$(cat status-3.10.txt 2>/dev/null || echo "")
+          ok2=$(cat status-3.11.txt 2>/dev/null || echo "")
 
           if [[ "$ok1" == "ok" && "$ok2" == "ok" ]]; then
-            echo "✅ Vsi testi so bili uspešni – nadaljujem z deployem."
+            echo "✅ Vsi testi OK – nadaljujem z Docker deployem."
           else
-            echo "❌ Eden ali več testov ni uspelo – prekinjam deploy."
+            echo "❌ Eden ali več testov ni uspešen – deploy prekinjen."
             exit 1
           fi
 
-      # Prijava v DockerHub – geslo in uporabniško ime morata biti shranjena kot GitHub Secrets
       - name: Prijava v DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # Zgradi Docker image iz Dockerfile
       - name: Zgradi Docker image
         run: docker build -t gaspermelansek/uvodvopencv .
 
-      # Potisni image na DockerHub
       - name: Push Docker image
         run: docker push gaspermelansek/uvodvopencv
