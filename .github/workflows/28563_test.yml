@@ -74,3 +74,4 @@ jobs:
           git add status-${{ matrix.python-version }}.txt
           git commit -m "Shranjeni status za ${{ matrix.python-version }}"
           git push
+
