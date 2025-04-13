@@ -44,7 +44,7 @@ jobs:
 
       - name: Preveri napako iz artefakta
         run: |
-          if [ -s ./artefakt/napaka.txt ]; then
+          if [ -n "$(cat ./artefakt/napaka.txt | tr -d ' \t\n\r')" ]; then
             echo "Napaka: Testna datoteka ne obstaja!"
             cat ./artefakt/napaka.txt
             exit 1
