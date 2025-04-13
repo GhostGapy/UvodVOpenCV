@@ -15,7 +15,7 @@ jobs:
       - name: Prenesi artefakt status.txt
         uses: actions/download-artifact@v4
         with:
-          name: status
+          name: status-3.11
           path: ./artefakt
 
       - name: Preveri ali so testi uspeli
