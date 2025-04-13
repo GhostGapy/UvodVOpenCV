@@ -61,17 +61,8 @@ jobs:
       - name: Označi uspeh za deploy
         run: echo "ok" > status.txt
 
-      - name: Shrani status v repozitorij (z exportiranim CI_PAT)
-        run: |
-          git config --global user.name "ci-bot"
-          git config --global user.email "ci@example.com"
-          echo "::debug::CI_PAT=$CI_PAT"
-          git remote set-url origin https://x-access-token:${CI_PAT}@github.com/${{ github.repository }}
-          git fetch
-          git checkout main
-          cp status.txt status-${{ matrix.python-version }}.txt
-          git add status-${{ matrix.python-version }}.txt
-          git commit -m "Shranjeni status za ${{ matrix.python-version }}"
-          git push
-
-
+      - name: Naloži status kot artefakt
+        uses: actions/upload-artifact@v4
+        with:
+          name: status-${{ matrix.python-version }}
+          path: status.txt

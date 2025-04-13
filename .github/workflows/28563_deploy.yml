@@ -1,34 +1,25 @@
 name: Deploy Docker
 
 on:
-  workflow_dispatch:  # Ročni zagon
+  workflow_run:
+    workflows: ["CI Test"]
+    types:
+      - completed
 
 jobs:
   deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: self-hosted
 
     steps:
-      - name: Kloniraj repozitorij
+      - name: ✅ Kloniraj repozitorij
         uses: actions/checkout@v4
 
-      - name: Preveri statuse iz repozitorija
-        run: |
-          echo "Preverjam status-3.10.txt in status-3.11.txt ..."
-          ok1=$(cat status-3.10.txt 2>/dev/null || echo "")
-          ok2=$(cat status-3.11.txt 2>/dev/null || echo "")
-
-          if [[ "$ok1" == "ok" && "$ok2" == "ok" ]]; then
-            echo "✅ Vsi testi OK – nadaljujem z Docker deployem."
-          else
-            echo "❌ Eden ali več testov ni uspešen – deploy prekinjen."
-            exit 1
-          fi
-
-      - name: Prijava v DockerHub
+      - name: 🔐 Prijava v DockerHub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Zgradi Docker image
+      - name: 🏗️ Zgradi Docker image
         run: docker build -t gaspermelansek/uvodvopencv .
 
-      - name: Push Docker image
+      - name: 🚀 Push Docker image
         run: docker push gaspermelansek/uvodvopencv
