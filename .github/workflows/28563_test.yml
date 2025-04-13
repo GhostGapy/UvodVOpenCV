@@ -64,5 +64,5 @@ jobs:
       - name: Naloži status kot artefakt
         uses: actions/upload-artifact@v4
         with:
-          name: status
+          name: status-${{ matrix.python-version }}
           path: status.txt
