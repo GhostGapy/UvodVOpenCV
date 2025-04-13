@@ -216,5 +216,5 @@ def main():
 
 
 if __name__ == "__main__":
-    print("Program se zaganja...")
+    print("Program se zaganja....")
     main()
